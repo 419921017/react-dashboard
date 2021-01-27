@@ -1,0 +1,8 @@
+export const CHANGE_USER_INFO = 'user/login/CHANGE_USER_INFO'
+export type CHANGE_USER_INFO = typeof CHANGE_USER_INFO
+
+export const CHANGE_SENT_STATUS = 'user/login/CHANGE_SENT_STATUS'
+export type CHANGE_SENT_STATUS = typeof CHANGE_SENT_STATUS
+
+export const CHANGE_LOGIN_STATUS = 'user/login/CHANGE_LOGIN_STATUS'
+export type CHANGE_LOGIN_STATUS = typeof CHANGE_LOGIN_STATUS
