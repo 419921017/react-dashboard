@@ -1,5 +1,5 @@
 import React, { FC, memo, ComponentType } from 'react'
-import './style.scss'
+import './style.less'
 
 const Login: FC = (props) => {
   return <div className='login-container'>{props.children}</div>

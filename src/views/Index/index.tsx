@@ -3,7 +3,7 @@ import React, { memo, FC } from 'react'
 const Index: FC = (props) => {
   return (
     <div className='index'>
-      123
+      index
       {props.children}
     </div>
   )

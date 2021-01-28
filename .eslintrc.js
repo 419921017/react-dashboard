@@ -38,6 +38,7 @@ module.exports = {
     },
   },
   rules: {
+    'unicorn/no-reduce': 'warn',
     'consistent-return': 'warn',
     'react-hooks/exhaustive-deps': 'warn',
     'no-param-reassign': 'off',

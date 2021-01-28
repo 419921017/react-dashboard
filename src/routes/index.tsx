@@ -7,7 +7,7 @@ import HomeLayout from '../layouts/HomeLayout'
 import EditorLayout from '../layouts/EditorLayout'
 
 const IndexComponent = lazy(() => import('../views/Index'))
-const EditorComponent = lazy(() => import('../views/Editer'))
+const EditorComponent = lazy(() => import('../views/Editor'))
 
 interface SuspenseComponent {
   (SComponent: ComponentType): FC
@@ -51,19 +51,21 @@ const router: RouteConfig[] = [
             // ],
           },
           {
-            path: '/editor',
+            path: '/editor/',
             component: EditorLayout,
+            // component: SuspenseComponent(EditorComponent),
             routes: [
               {
-                path: '/editor/:id',
-                key: 'index',
+                path: '/editor/',
+                exact: true,
+                // render: () => <Redirect to='/index' />,
                 component: SuspenseComponent(EditorComponent),
-                // routes: [
-                //   {
-                //     path: '/recommend/:id',
-                //     component: SuspenseComponent(AlbumComponent),
-                //   },
-                // ],
+              },
+              {
+                path: '/editor/:id',
+                exact: true,
+                // render: () => <Redirect to='/index' />,
+                component: SuspenseComponent(EditorComponent),
               },
             ],
           },

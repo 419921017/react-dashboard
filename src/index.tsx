@@ -1,5 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import 'normalize.css/normalize.css'
+
 import App from './app'
 
 if (module && module.hot) {
