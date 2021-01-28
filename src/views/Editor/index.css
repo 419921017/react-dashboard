@@ -1,0 +1,20 @@
+.editor-container {
+  height: 100%;
+  width: 100%;
+}
+.editor-container-top {
+  height: 4%;
+}
+.editor-container-main {
+  height: 96%;
+  display: flex;
+}
+.editor-container-main-left {
+  width: 16%;
+}
+.editor-container-main-center {
+  width: 68%;
+}
+.editor-container-main-right {
+  width: 16%;
+}

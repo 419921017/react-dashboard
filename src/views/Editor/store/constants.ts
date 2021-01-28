@@ -1,1 +1,3 @@
 export const SET_EDIT_MODE = 'edit/SET_EDIT_MODE'
+export const SET_COMPONENT_DATA = 'edit/SET_COMPONENT_DATA'
+export const SET_SNAPSHOT_INDEX = 'edit/SET_SNAPSHOT_INDEX'
