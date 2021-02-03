@@ -1,3 +1,4 @@
+const path = require('path')
 const { resolve } = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
@@ -7,6 +8,12 @@ const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const HappyPack = require('happypack')
+const CompressionWebpackPlugin = require('compression-webpack-plugin')
+const UselessFile = require('useless-files-webpack-plugin')
+const os = require('os')
+
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 const { isDev, PROJECT_PATH, IS_OPEN_HARD_SOURCE } = require('../constants')
 
 const getCssLoaders = (importLoaders) => [
@@ -61,8 +68,9 @@ module.exports = {
     rules: [
       {
         test: /\.(tsx?|js)$/,
-        loader: 'babel-loader',
-        options: { cacheDirectory: true },
+        loader: 'happypack/loader?id=babel',
+        // loader: 'babel-loader',
+        // options: { cacheDirectory: true },
         exclude: /node_modules/,
       },
       {
@@ -158,6 +166,21 @@ module.exports = {
       typescript: {
         configFile: resolve(PROJECT_PATH, './tsconfig.json'),
       },
+    }),
+    new HappyPack({
+      id: 'babel',
+      loaders: ['babel-loader?cacheDirectory=true'],
+      threadPool: happyThreadPool
+    }),
+    new CompressionWebpackPlugin({
+      test: /\.js$|\.html$|\.css$/,
+      // 超过4kb压缩
+      threshold: 4096
+    }),
+    new UselessFile({
+      root: path.resolve(__dirname, './src/assets/images'),
+      clean: true,
+      exclude: /node_modules/
     }),
     IS_OPEN_HARD_SOURCE && new HardSourceWebpackPlugin(),
     !isDev && new MiniCssExtractPlugin({
