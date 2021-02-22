@@ -5,6 +5,9 @@ type propVale = stringNumber | (string | number)[] | { [propName: string]: any }
 interface IEvent {
   [propName: string]: any
 }
+interface IAnimation {
+  [propName: string]: any
+}
 
 interface IStyle {
   // 组件样式
@@ -26,7 +29,7 @@ export interface IComponentProps {
   label: string // 左侧组件列表中显示的名字
   propValue: propVale // 组件所使用的值
   icon: string // 左侧组件列表中显示的名字
-  animations: [] // 动画列表
+  animations: IAnimation // 动画列表
   events: IEvent // 事件列表
   style: IStyle
   [propName: string]: any

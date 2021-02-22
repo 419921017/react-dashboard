@@ -38,6 +38,7 @@ module.exports = {
     },
   },
   rules: {
+    'no-shadow': ['warn', { builtinGlobals: false, hoist: 'functions', allow: [] }],
     'unicorn/no-reduce': 'warn',
     'consistent-return': 'warn',
     'react-hooks/exhaustive-deps': 'warn',

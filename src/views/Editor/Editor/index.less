@@ -1,20 +1,27 @@
+@editor-toolbar: 60px;
+@editor-left: 260px;
+@editor-right: 260px;
+
 .editor-container {
   height: 100%;
   width: 100%;
   &-top {
-    height: 4%;
+    height: @editor-toolbar;
   }
   &-main {
-    height: 96%;
+    height: calc(100% - @editor-toolbar);
     display: flex;
     &-left {
-      width: 16%;
+      height: 100%;
+      width: @editor-left;
     }
     &-center {
-      width: 68%;
+      height: 100%;
+      width: calc(100% - @editor-left - @editor-right);
     }
     &-right {
-      width: 16%;
+      height: 100%;
+      width: @editor-right;
     }
   }
 }

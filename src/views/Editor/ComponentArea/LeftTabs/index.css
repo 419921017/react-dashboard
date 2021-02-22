@@ -1,0 +1,15 @@
+.vertical-text {
+  writing-mode: vertical-lr;
+}
+.left-tabs-content {
+  height: 100%;
+}
+.left-tabs-content .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab,
+.left-tabs-content .ant-tabs-right > .ant-tabs-nav .ant-tabs-tab,
+.left-tabs-content .ant-tabs-left > div > .ant-tabs-nav .ant-tabs-tab,
+.left-tabs-content .ant-tabs-right > div > .ant-tabs-nav .ant-tabs-tab {
+  padding: 4px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

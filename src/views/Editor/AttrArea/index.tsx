@@ -1,5 +1,6 @@
 import React, { FC, memo, useContext } from 'react'
 import { EditorContext } from '../EditorContext'
+import './index.less'
 
 const AttrArea: FC = (props) => {
   // const { editorData, editorDispatch } = useContext(EditorContext)

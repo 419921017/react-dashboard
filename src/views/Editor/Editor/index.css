@@ -3,18 +3,21 @@
   width: 100%;
 }
 .editor-container-top {
-  height: 4%;
+  height: 60px;
 }
 .editor-container-main {
-  height: 96%;
+  height: calc(100% - 60px);
   display: flex;
 }
 .editor-container-main-left {
-  width: 16%;
+  height: 100%;
+  width: 260px;
 }
 .editor-container-main-center {
-  width: 68%;
+  height: 100%;
+  width: calc(100% - 260px - 260px);
 }
 .editor-container-main-right {
-  width: 16%;
+  height: 100%;
+  width: 260px;
 }
