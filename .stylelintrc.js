@@ -11,6 +11,8 @@ module.exports = {
     'rule-empty-line-before': 'always',
     'at-rule-no-unknown': null,
     'scss/at-rule-no-unknown': true,
+    'rule-empty-line-before': null,
+    'order/properties-order': null,
   },
   ignoreFiles: ['node_modules/**/*', 'build/**/*', 'dist/**/*'],
 }
