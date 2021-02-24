@@ -3,26 +3,24 @@ import { Button, InputNumber } from 'antd'
 import { EditorContext } from '../EditorContext'
 
 import './index.less'
-import { unDo } from '../store/actionCreators'
+import { unDoDispatch } from '../store/snapshot/actionCreators'
+
+const handleUnDo = () => {}
+
+const handleReDo = () => {}
+
+const handlePreview = () => {}
+
+const handleSave = () => {}
+
+const handleClearCanvas = () => {}
+
+const onChangeCanvasSize = () => {}
 
 const ToolBar: FC = () => {
   const { editorData, editorDispatch } = useContext(EditorContext)
 
-  const { canvasStyleData } = editorData
-
-  const handleUnDo = () => {
-    unDo(editorData)
-  }
-
-  const handleReDo = () => {}
-
-  const handlePreview = () => {}
-
-  const handleSave = () => {}
-
-  const handleClearCanvas = () => {}
-
-  const onChangeCanvasSize = () => {}
+  const { canvasStyleData } = editorData.edit
 
   return (
     <div className='editor-toolbar'>

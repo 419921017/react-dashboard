@@ -2,6 +2,7 @@ import React, { forwardRef, useState, useEffect, useRef, useImperativeHandle, us
 import BScroll from 'better-scroll'
 import styled from 'styled-components'
 import { useDebounceFn } from 'ahooks'
+import { withDefaultProps } from 'Src/utils/withDefaultProps'
 // import { debounce } from '../../api/utils'
 
 const ScrollContainer = styled.div`
@@ -215,4 +216,4 @@ Scroll.defaultProps = {
   bounceBottom: true,
 }
 
-export default Scroll
+export default withDefaultProps(Scroll.defaultProps, Scroll)

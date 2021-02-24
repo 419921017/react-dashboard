@@ -1,8 +1,8 @@
 import React, { FC, memo, useContext } from 'react'
-import { Tabs, Radio } from 'antd'
+import { Tabs } from 'antd'
+import Scroll from '../../../../baseUI/Scroll'
 
 import './index.less'
-import { padEnd } from 'lodash'
 
 const { TabPane } = Tabs
 
@@ -26,7 +26,7 @@ const LeftTabs: FC<ILeftTabs> = (props) => {
       <Tabs defaultActiveKey='1' tabPosition={mode} style={{ height: '100%' }} tabBarGutter={8}>
         {tabsData.map((i) => (
           <TabPane tab={TabContent({ content: `Tab-${i}` })} key={i} disabled={i === 28}>
-            Content of tab {i}
+            <Scroll>Content of tab {i}</Scroll>
           </TabPane>
         ))}
       </Tabs>

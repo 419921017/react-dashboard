@@ -1,3 +1,14 @@
+export function swap(arr: any[], i: any, j: any) {
+  const temp = arr[i]
+  arr[i] = arr[j]
+  arr[j] = temp
+  return arr
+}
+
+export function $(selector: any) {
+  return document.querySelector(selector)
+}
+
 export function deepCopy(target: { [propName: string]: any }) {
   if (typeof target === 'object') {
     const result: any = Array.isArray(target) ? [] : {}

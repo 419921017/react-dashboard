@@ -1,14 +1,14 @@
 import React, { memo, FC, useEffect, useContext, createContext, useReducer } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
 import { Action } from 'redux'
-import reducer, { defaultState, IState } from '../store/reducer'
+import reducer, { defaultState, IEditState } from '../store/edit/reducer'
 
 import ComponentArea from '../ComponentArea'
 import CanvasArea from '../CanvasArea'
 import { EditorContext, EditorProvider } from '../EditorContext'
 import ToolBar from '../ToolBar'
 import AttrArea from '../AttrArea'
-import * as actions from '../store/actionCreators'
+import * as actions from '../store/edit/actionCreators'
 
 import './index.less'
 

@@ -13,6 +13,8 @@ module.exports = {
     'scss/at-rule-no-unknown': true,
     'rule-empty-line-before': null,
     'order/properties-order': null,
+    'value-keyword-case': null,
+    'selector-pseudo-element-colon-notation': null,
   },
   ignoreFiles: ['node_modules/**/*', 'build/**/*', 'dist/**/*'],
 }

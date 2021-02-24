@@ -1,10 +1,10 @@
 import React, { FC, createContext, useReducer } from 'react'
 import { Action } from 'redux'
-import reducer, { defaultState, IState } from '../store/reducer'
+import reducer, { defaultState, IEditStore } from '../store'
 
 // TODO: 这里没有使用react-redux, 使用的hooks模拟的redux功能, 主要是为了模块化, 单一处理单个editor页面的数据流动
 interface IEditorContext {
-  editorData: IState
+  editorData: IEditStore
   editorDispatch: React.Dispatch<Action>
 }
 
