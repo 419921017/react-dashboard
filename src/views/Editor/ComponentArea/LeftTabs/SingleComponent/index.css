@@ -1,0 +1,18 @@
+.single-component {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.single-component span {
+  font-size: 14px;
+  margin-top: 6px;
+}
+.single-component-bg {
+  width: 160px;
+  height: 160px;
+  background-size: 100% 100%;
+}

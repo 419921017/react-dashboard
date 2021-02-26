@@ -55,7 +55,7 @@ export const pasteDispatch = (store: IEditStore, isMouse: boolean) => (dispatch:
     data.style.top += 10
   }
   data.id = generateId()
-  addComponentDispatch(store, { component: data, index })
+  addComponentDispatch(store.edit, { component: data, index })
   if (isCut) {
     dispatch(copy(null))
   }
@@ -71,13 +71,13 @@ export const cutDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
     const data: ComponentType | any = deepCopy(copyData.data)
     const { index } = copyData
     data.id = generateId()
-    addComponentDispatch(store, { component: data, index })
+    addComponentDispatch(store.edit, { component: data, index })
     if (curComponentIndex && curComponentIndex >= index) {
       // 如果当前组件索引大于等于插入索引，需要加一，因为当前组件往后移了一位
       setCurComponentIndex(curComponentIndex + 1)
     }
   }
   copyDispatch(store)
-  deleteComponentDispatch(store)
+  deleteComponentDispatch(store.edit)
   dispatch(cutState(true))
 }

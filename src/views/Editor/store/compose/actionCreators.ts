@@ -1,9 +1,12 @@
-import { Dispatch } from 'redux'
+import { Dispatch, Action } from 'redux'
+import store, { IRootDefaultState } from 'Src/store'
 import * as actionTypes from './actionTypes'
 import { IEditStore } from '..'
 import { deleteComponentDispatch, addComponentDispatch, setComponentData } from '../edit/actionCreators'
-import { IEditComponent } from '../edit/reducer'
+import { IEditComponent, IEditState } from '../edit/reducer'
 import decomposeComponent from '../../utils/decomposeComponent'
+import { IComposeState } from './reducer'
+import { deepCopy } from '../../../utils'
 
 export const setEditor = (payload: any) => ({
   type: actionTypes.SET_EDITOR,
@@ -15,9 +18,11 @@ export const setAreaData = (payload: any) => ({
   payload,
 })
 
-export const batchDeleteComponent = (store: IEditStore, deleteData: any) => (dispatch: Dispatch) => {
-  const { componentData } = store.edit
-  const componentDataCopy = componentData.slice()
+export const batchDeleteComponentDispatch = (deleteData: any) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { componentData } = edit
+  const componentDataCopy = deepCopy(componentData)
 
   deleteData.forEach((component: IEditComponent) => {
     for (let i = 0, len = componentDataCopy.length; i < len; i++) {
@@ -31,32 +36,36 @@ export const batchDeleteComponent = (store: IEditStore, deleteData: any) => (dis
   dispatch(setComponentData(componentDataCopy))
 }
 
-export const compose = (store: IEditStore) => (dispatch: Dispatch) => {
-  const { componentData } = store.edit
-  const { areaData, editor } = store.compose
-  const components = []
+export const composeDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit, compose } = (state as IRootDefaultState).get('editor')
+    const { componentData } = edit
+    const { areaData, editor } = compose
+    const components = []
 
-  areaData.components.forEach((component) => {
-    if (component.component !== 'Group') {
-      components.push(component)
-    } else {
-      // 如果要组合的组件中，已经存在组合数据，则需要提前拆分
-      const parentStyle = { ...component.style }
-      const subComponents = component.propValue
-      const editorRect = editor.getBoundingClientRect()
-      deleteComponentDispatch(store)
+    areaData.components.forEach((component: any) => {
+      if (component.component !== 'Group') {
+        components.push(component)
+      } else {
+        // 如果要组合的组件中，已经存在组合数据，则需要提前拆分
+        const parentStyle = { ...component.style }
+        const subComponents = component.propValue
+        const editorRect = editor.getBoundingClientRect()
+        deleteComponentDispatch(edit)
 
-      // store.commit('deleteComponent')
-      subComponents.forEach((subComponent: IEditComponent) => {
-        decomposeComponent(component, editorRect, parentStyle)
-        addComponentDispatch(store, { component: subComponent })
-      })
+        // store.commit('deleteComponent')
+        subComponents.forEach((subComponent: IEditComponent) => {
+          decomposeComponent(component, editorRect, parentStyle)
+          addComponentDispatch({ component: subComponent })
+        })
 
-      components.push(...component.propValue)
-      batchDeleteComponent(store, component.propValue)
-      // store.commit('batchDeleteComponent', component.propValue)
-    }
-  })
+        components.push(...component.propValue)
+        batchDeleteComponentDispatch(component.propValue)
+        // store.commit('batchDeleteComponent', component.propValue)
+      }
+    })
 
-  areaData.components = []
+    areaData.components = []
+  }
 }

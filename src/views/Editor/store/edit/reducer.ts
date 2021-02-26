@@ -1,8 +1,6 @@
 import { produce } from 'immer'
 import { Reducer } from 'redux'
-import { ComponentType } from 'react'
 import * as actionTypes from './actionTypes'
-import { setCanvasStyle } from './actionCreators'
 
 type stringNumber = string | number
 
@@ -12,10 +10,10 @@ type stringNumber = string | number
 // }
 
 export interface IEditComponent {
+  id: number
   events: {
     [propName: string]: any
   }
-  id: number
   style: any
   animations: string[]
   component: string
@@ -100,9 +98,6 @@ const reducer: Reducer = (state = defaultState, action: any) =>
       case actionTypes.SET_COMPONENT_DATA:
         draft.componentData = action.payload
         console.log('draft', draft)
-        return
-      default:
-        return state
     }
   })
 

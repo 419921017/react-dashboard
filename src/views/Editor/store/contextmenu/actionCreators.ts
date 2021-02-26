@@ -24,11 +24,3 @@ export const showContextMenuDispatch = (top: number, left: number) => (dispatch:
   dispatch(setContextMenuTop(top))
   dispatch(setContextMenuLeft(left))
 }
-
-export default {
-  showContextMenu,
-  hideContextMenu,
-  setContextMenuLeft,
-  setContextMenuTop,
-  showContextMenuDispatch,
-}

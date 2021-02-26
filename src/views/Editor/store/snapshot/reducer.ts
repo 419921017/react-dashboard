@@ -16,20 +16,18 @@ export const defaultState = {
 const reducer: Reducer = (state = defaultState, action: any) =>
   produce(state, (draft: ISnapshotState) => {
     switch (action.type) {
-      // case actionTypes.SHOW_CONTEXT_MENU:
-      //   draft.menuShow = true
-      //   return
-      // case actionTypes.HIDE_CONTEXT_MENU:
-      //   draft.menuShow = false
-      //   return
+      case actionTypes.SET_SNAPSHOT_DATA:
+        draft.snapshotData = action.payload
+        return
+      case actionTypes.SET_SNAPSHOT_INDEX:
+        draft.snapshotIndex = action.payload
+
       // case actionTypes.CONTEXT_MENU_LEFT:
       //   draft.menuLeft = action.payload
       //   return
       // case actionTypes.CONTEXT_MENU_TOP:
       //   draft.menuTop = action.payload
       //   return
-      default:
-        return state
     }
   })
 

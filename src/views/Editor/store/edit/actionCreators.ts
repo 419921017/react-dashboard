@@ -1,57 +1,64 @@
-import { AnyAction, Dispatch } from 'redux'
-import { ComponentType } from 'react'
+import { AnyAction, Action, Dispatch } from 'redux'
 import toast from 'Src/utils/message'
+import store, { IRootDefaultState } from 'Src/store'
 import * as actionTypes from './actionTypes'
 import { IEditStore } from '..'
-import { IEditComponent } from './reducer'
+import { IEditComponent, IEditState } from './reducer'
 import { swap } from '../../utils'
+import { deepCopy } from '../../../utils'
 
-// export const setSnapshotIndex = (payload: any) => ({
-//   type: actionTypes.SET_SNAPSHOT_INDEX,
-//   payload,
-// })
-
-export const setClickComponentStatus = (payload: any) => {
+const setClickComponentStatus = (payload: string) => {
   return {
     type: actionTypes.SET_CLICK_COMPONENT_STATUS,
     payload,
   }
 }
 
-export const setEditMode = (payload: any) => {
+export const setClickComponentStatusDispatch = (payload: any) => (dispatch: Dispatch) => {
+  dispatch(setClickComponentStatus(payload))
+}
+
+const setEditMode = (payload: string) => {
   return {
     type: actionTypes.SET_EDIT_MODE,
     payload,
   }
 }
 
-export const setCanvasStyle = (payload: any) => {
+export const setEditModeDispatch = (payload: string) => (dispatch: any) => {
+  dispatch(setEditMode(payload))
+}
+
+const setCanvasStyle = (payload: any) => {
   return {
     type: actionTypes.SET_CANVAS_STYLE,
     payload,
   }
 }
+
+export const setCanvasStyleDispatch = (payload: any) => (dispatch: Dispatch) => {
+  dispatch(setCanvasStyle(payload))
+}
+
 // { component, index }
-export const setCurComponent = (payload: any) => {
+const setCurComponent = (payload: any) => {
   return {
     type: actionTypes.SET_CUR_COMPONENT,
     payload,
-    // {
-    // component,
-    // index
-    // }
   }
 }
 
-export const setCurComponentIndex = (payload: any) => {
+const setCurComponentIndex = (payload: any) => {
   return {
     type: actionTypes.SET_CUR_COMPONENT_INDEX,
     payload,
-    // {
-    // component,
-    // index
-    // }
   }
+}
+
+export const setCurComponentAndComponentIndexDispatch = (payload: any) => (dispatch: Dispatch) => {
+  const { component, index } = payload
+  dispatch(setCurComponent(component))
+  dispatch(setCurComponentIndex(index))
 }
 
 interface ISetShapeStyle {
@@ -81,16 +88,15 @@ export const setShapeStyle: ISetShapeStyle = ({ curComponent, top, left, width, 
   }
 }
 
-interface ISetShapeStyleByDispatch {
-  (store: IEditStore, style: { top: number; left: number; width: number; height: number; rotate: number }): (
-    dispatch: Dispatch,
-  ) => void
-}
+// interface ISetShapeStyleByDispatch {
+//   (store: IEditStore, style: { top: number; left: number; width: number; height: number; rotate: number }): (
+//     dispatch: Dispatch,
+//   ) => void
+// }
 
-export const setShapeStyleByDispatch: ISetShapeStyleByDispatch = (store, { top, left, width, height, rotate }) => (
-  dispatch,
-) => {
+export const setShapeStyleByDispatch = (store: IEditStore, dispatch: Dispatch, payload: any) => {
   const { curComponent } = store.edit
+  const { top, left, width, height, rotate } = payload
   if (curComponent) {
     dispatch(setShapeStyle({ curComponent, top, left, width, height, rotate }))
   }
@@ -99,6 +105,7 @@ export const setShapeStyleByDispatch: ISetShapeStyleByDispatch = (store, { top, 
 interface ISetShapeSingleStyle {
   (curComponent: IEditComponent, params: { key: string; value: any }): AnyAction
 }
+
 export const setShapeSingleStyle: ISetShapeSingleStyle = (curComponent, { key, value }) => {
   return {
     type: actionTypes.SET_SHAPE_SINGLE_STYLE,
@@ -110,11 +117,7 @@ export const setShapeSingleStyle: ISetShapeSingleStyle = (curComponent, { key, v
   }
 }
 
-interface ISetShapeSingleStyleDispatch {
-  (store: IEditStore, params: { key: string; value: any }): (dispatch: Dispatch) => void
-}
-
-export const setShapeSingleStyleDispatch: ISetShapeSingleStyleDispatch = (store, params) => (dispatch) => {
+export const setShapeSingleStyleDispatch = (store: IEditStore, dispatch: Dispatch, params: any) => {
   const { curComponent } = store.edit
   if (curComponent) {
     dispatch(setShapeSingleStyle(curComponent, params))
@@ -128,48 +131,36 @@ export const setComponentData = (payload: any) => {
   }
 }
 
-interface IAddComponentDispatch {
-  (store: IEditStore, params: { component: IEditComponent; index?: number }): (dispatch: Dispatch) => void
-}
+export const addComponentDispatch = (payload: { component: any; index?: number }) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  // const { componentData } = edit
+  const editor = (state as IRootDefaultState).get('editor')
+  const { componentData } = editor.edit
+  const { index, component } = payload
 
-export const addComponentDispatch: IAddComponentDispatch = (store, params) => (dispatch) => {
-  const { componentData } = store.edit
-  const { index, component } = params
-
-  const componentDataCopy = componentData.slice()
+  const componentDataCopy = deepCopy(componentData)
+  console.log('index', index)
 
   if (index !== undefined) {
     componentDataCopy.splice(index, 0, component)
   } else {
     componentDataCopy.push(component)
   }
+
   dispatch(setComponentData(componentDataCopy))
 }
 
-interface IDeleteComponentDispatch {
-  (store: IEditStore, index?: number): (dispatch: Dispatch) => void
-}
-
-export const deleteComponentDispatch: IDeleteComponentDispatch = (store, index) => (dispatch) => {
-  if (index === undefined && store.edit.curComponentIndex) {
-    index = store.edit.curComponentIndex
+export const deleteComponentDispatch = (edit: IEditState, index?: number) => (dispatch: Dispatch) => {
+  if (index === undefined && edit.curComponentIndex) {
+    index = edit.curComponentIndex
   }
-  const componentDataCopy = store.edit.componentData.slice().splice(index as number, 1)
+  const componentDataCopy = deepCopy(edit.componentData).splice(index as number, 1)
   dispatch(setComponentData(componentDataCopy))
 }
-
-// export const unDo = (state: IEditStore) => {
-//   return (dispatch: Dispatch) => {
-//     if (state.snapshotIndex >= 0) {
-//       dispatch(setSnapshotIndex(state.snapshotIndex--))
-//       dispatch(setComponentData(cloneDeep(state.snapshotData[state.snapshotIndex])))
-//     }
-//   }
-// }
 
 // NOTE: animation
-export const addAnimationDispatch = (store: IEditStore, animation: string) => (dispatch: Dispatch) => {
-  const { curComponent } = store.edit
+export const addAnimationDispatch = (edit: IEditState, animation: string) => (dispatch: Dispatch) => {
+  const { curComponent } = edit
   if (curComponent) {
     curComponent.animations.push(animation)
     const curComponentByAnimation = curComponent
@@ -177,8 +168,8 @@ export const addAnimationDispatch = (store: IEditStore, animation: string) => (d
   }
 }
 
-export const removeAnimationDispatch = (store: IEditStore, index: number) => (dispatch: Dispatch) => {
-  const { curComponent } = store.edit
+export const removeAnimationDispatch = (edit: IEditState, index: number) => (dispatch: Dispatch) => {
+  const { curComponent } = edit
   if (curComponent) {
     curComponent.animations.splice(index, 1)
     const curComponentByAnimation = curComponent
@@ -187,19 +178,20 @@ export const removeAnimationDispatch = (store: IEditStore, index: number) => (di
 }
 
 // NOTE: event
-export const addEventDispatch = (store: IEditStore, params: { eventName: string; param: any }) => (
+export const addEventDispatch = (edit: IEditState, payload: { eventName: string; param: any }) => (
   dispatch: Dispatch,
 ) => {
-  const { curComponent } = store.edit
+  const { curComponent } = edit
   if (curComponent) {
-    const { eventName, param } = params
+    const { eventName, param } = payload
     curComponent.events[eventName] = param
     const curComponentByEvent = curComponent
     dispatch(setCurComponent(curComponentByEvent))
   }
 }
-export const removeEventDispatch = (store: IEditStore, eventName: string) => (dispatch: Dispatch) => {
-  const { curComponent } = store.edit
+
+export const removeEventDispatch = (edit: IEditState, eventName: string) => (dispatch: Dispatch) => {
+  const { curComponent } = edit
   if (curComponent) {
     delete curComponent.events[eventName]
     const curComponentByEvent = curComponent
@@ -219,8 +211,8 @@ export const setLockFalse = () => ({
 })
 
 // NOTE: layout
-export const upComponentDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
-  const { componentData, curComponentIndex } = store.edit
+export const upComponentDispatch = (edit: IEditState) => (dispatch: Dispatch) => {
+  const { componentData, curComponentIndex } = edit
   if (curComponentIndex !== null) {
     // 上移图层 index，表示元素在数组中越往后
     if (curComponentIndex < componentData.length - 1) {
@@ -231,7 +223,8 @@ export const upComponentDispatch = (store: IEditStore) => (dispatch: Dispatch) =
     }
   }
 }
-export const downComponentDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
+
+export const downComponentDispatch = (store: IEditStore, dispatch: Dispatch) => {
   const { componentData, curComponentIndex } = store.edit
   // 下移图层 index，表示元素在数组中越往前
   if (curComponentIndex !== null) {
@@ -243,7 +236,8 @@ export const downComponentDispatch = (store: IEditStore) => (dispatch: Dispatch)
     }
   }
 }
-export const upComponentTopDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
+
+export const upComponentTopDispatch = (store: IEditStore, dispatch: Dispatch) => {
   const { componentData, curComponentIndex } = store.edit
   if (curComponentIndex !== null) {
     // 置顶

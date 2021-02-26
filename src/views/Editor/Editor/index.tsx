@@ -1,23 +1,39 @@
-import React, { memo, FC, useEffect, useContext, createContext, useReducer } from 'react'
+import React, { memo, FC, useEffect } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
-import { Action } from 'redux'
-import reducer, { defaultState, IEditState } from '../store/edit/reducer'
+import { Dispatch, Action } from 'redux'
+import { connect } from 'react-redux'
 
 import ComponentArea from '../ComponentArea'
 import CanvasArea from '../CanvasArea'
-import { EditorContext, EditorProvider } from '../EditorContext'
 import ToolBar from '../ToolBar'
 import AttrArea from '../AttrArea'
-import * as actions from '../store/edit/actionCreators'
 
 import './index.less'
+import { IRootDefaultState } from '../../../store'
+import * as actions from '../store/edit/actionCreators'
+import { setEditModeDispatch } from '../store/edit/actionCreators'
+import { IEditStore } from '../store'
 
-interface IRouteParams {
+type PageStateProps = {
+  // editorData: IEditStore
+}
+
+type PageDispatchProps = {
+  setEditModeDispatch: (payload: string) => void
+  // [propsName: string]: any
+}
+
+type PageOwnProps = {
   id?: string
 }
 
-const Editor: FC<RouteComponentProps<IRouteParams>> = (props) => {
-  const { editorData, editorDispatch } = useContext(EditorContext)
+// type PageState = {}
+
+type IProps = PageStateProps & PageDispatchProps & PageOwnProps
+
+const Editor: FC<RouteComponentProps<PageOwnProps> & IProps> = (props) => {
+  // const { editorData } = props
+  const { setEditModeDispatch } = props
 
   const { id } = props.match.params
 
@@ -25,11 +41,10 @@ const Editor: FC<RouteComponentProps<IRouteParams>> = (props) => {
   useEffect(() => {
     if (id) {
       // 切换组件状态
-      editorDispatch(actions.setEditMode('edit'))
-      // setEditMode
+      setEditModeDispatch('edit')
       // TODO: 获得组件信息
     } else {
-      editorDispatch(actions.setEditMode('read'))
+      setEditModeDispatch('read')
     }
   }, [id])
 
@@ -53,4 +68,14 @@ const Editor: FC<RouteComponentProps<IRouteParams>> = (props) => {
   )
 }
 
-export default memo(withRouter(Editor))
+export default connect(
+  (state: IRootDefaultState) => ({
+    // editorData: state.get('editor'),
+  }),
+  (dispatch: Dispatch) => ({
+    setEditModeDispatch(payload: string) {
+      dispatch(setEditModeDispatch(payload) as any)
+    },
+  }),
+  // actions,
+)(memo(withRouter(Editor)))

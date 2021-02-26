@@ -29,9 +29,6 @@ const reducer: Reducer = (state = defaultState, action: any) =>
         return
       case actionTypes.CONTEXT_MENU_TOP:
         draft.menuTop = action.payload
-        return
-      default:
-        return state
     }
   })
 

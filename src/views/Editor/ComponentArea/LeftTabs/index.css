@@ -8,8 +8,42 @@
 .left-tabs-content .ant-tabs-right > .ant-tabs-nav .ant-tabs-tab,
 .left-tabs-content .ant-tabs-left > div > .ant-tabs-nav .ant-tabs-tab,
 .left-tabs-content .ant-tabs-right > div > .ant-tabs-nav .ant-tabs-tab {
-  padding: 4px 8px;
+  padding: 8px 0 4px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.left-tabs-content .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab .ant-tabs-tabpane,
+.left-tabs-content .ant-tabs-right > .ant-tabs-nav .ant-tabs-tab .ant-tabs-tabpane,
+.left-tabs-content .ant-tabs-left > div > .ant-tabs-nav .ant-tabs-tab .ant-tabs-tabpane,
+.left-tabs-content .ant-tabs-right > div > .ant-tabs-nav .ant-tabs-tab .ant-tabs-tabpane {
+  padding-left: 0;
+}
+.left-tabs-content .component-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+.left-tabs-content .component-container .single-component {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.left-tabs-content .component-container .single-component span {
+  font-size: 14px;
+  margin-top: 6px;
+}
+.left-tabs-content .component-container .single-component-bg {
+  width: 160px;
+  height: 160px;
+  background-size: 100% 100%;
 }

@@ -7,13 +7,13 @@ interface IUserInfo {
   nickname: string
 }
 
-export interface IState {
+export interface IUserState {
   userInfo: IUserInfo
   sentStatus: boolean
   loginStatus: boolean
 }
 
-export const defaultState: IState = {
+export const defaultState: IUserState = {
   userInfo: {
     username: '',
     nickname: '',
@@ -34,8 +34,8 @@ const reducer: Reducer = (state = defaultState, action: any) =>
       case actionTypes.CHANGE_LOGIN_STATUS:
         draft.loginStatus = action.payload
         return draft.loginStatus
-      default:
-        return state
+      // default:
+      //   return state
     }
   })
 

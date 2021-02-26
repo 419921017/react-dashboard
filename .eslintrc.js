@@ -38,6 +38,7 @@ module.exports = {
     },
   },
   rules: {
+    'default-case': 'warn',
     'jsx-a11y/no-static-element-interactions': 'warn',
     'no-shadow': ['warn', { builtinGlobals: false, hoist: 'functions', allow: [] }],
     'unicorn/no-reduce': 'warn',

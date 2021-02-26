@@ -1,22 +1,26 @@
-import React, { FC, memo, useState, useEffect } from 'react'
+import React, { FC, memo, useState, useEffect, useRef } from 'react'
 import LeftTabs from './LeftTabs'
+
+import renderComponentAreaData from '../../../customComponents'
 
 import './index.less'
 
 const ComponentArea: FC = (props) => {
   // const { editorData, editorDispatch } = useContext(EditorContext)
-  const [tabsData, setTabsData] = useState<any[]>([])
+  const [height, setHeight] = useState(0)
+  const componentAreaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const tabs = [...Array.from({ length: 30 }, (v, i) => i)]
-    setTabsData(tabs)
+    if (componentAreaRef !== null && componentAreaRef.current !== null) {
+      const { offsetHeight } = componentAreaRef.current
+      setHeight(offsetHeight)
+    }
   }, [])
 
   return (
-    <div className='editor-component-area'>
+    <div className='editor-component-area' ref={componentAreaRef}>
       {/* component area */}
-      {props.children}
-      <LeftTabs tabsData={tabsData} />
+      <LeftTabs tabsData={renderComponentAreaData} height={height} />
     </div>
   )
 }

@@ -7,16 +7,14 @@ import { IEditComponent } from '../edit/reducer'
 export interface IComposeState {
   areaData: {
     style: {
-      style: {
-        top: number
-        left: number
-        width: number
-        height: number
-      }
+      top: number
+      left: number
+      width: number
+      height: number
     }
     components: IEditComponent[]
   }
-  editor: HTMLElement
+  editor: HTMLElement | null
 }
 
 export const defaultState = {
@@ -35,20 +33,11 @@ export const defaultState = {
 const reducer: Reducer = (state = defaultState, action: any) =>
   produce(state, (draft: IComposeState) => {
     switch (action.type) {
-      // case actionTypes.SHOW_CONTEXT_MENU:
-      //   draft.menuShow = true
-      //   return
-      // case actionTypes.HIDE_CONTEXT_MENU:
-      //   draft.menuShow = false
-      //   return
-      // case actionTypes.CONTEXT_MENU_LEFT:
-      //   draft.menuLeft = action.payload
-      //   return
-      // case actionTypes.CONTEXT_MENU_TOP:
-      //   draft.menuTop = action.payload
-      //   return
-      default:
-        return state
+      case actionTypes.SET_EDITOR:
+        draft.editor = action.payload
+        return
+      case actionTypes.SET_AREA_DATA:
+        draft.areaData = action.payload
     }
   })
 

@@ -1,6 +1,10 @@
-import { createStore, compose, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
-import reducer from './reducer'
+
+import reducers from './reducer'
+
+import { defaultState as editorDefaultState, IEditStore } from '../views/Editor/store'
+import { defaultState as userDefaultState, IUserState } from '../views/User/store/reducer'
 
 declare global {
   interface Window {
@@ -10,6 +14,12 @@ declare global {
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-const store = createStore(reducer, composeEnhancers(applyMiddleware(thunk)))
+export interface IRootDefaultState {
+  user: IUserState
+  editor: IEditStore
+  get: (key: any) => any
+}
+
+const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 export default store

@@ -1,4 +1,4 @@
-import { Dispatch } from 'redux'
+import { Dispatch, Action } from 'redux'
 import { loginByPhoneRequest, sentVcodeRequest, loginByVcodeRequest } from '../../../api/login'
 import { CHANGE_USER_INFO, CHANGE_SENT_STATUS, CHANGE_LOGIN_STATUS } from './constants'
 
