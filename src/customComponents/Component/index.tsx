@@ -27,9 +27,14 @@ type PageOwnProps = {
 type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
 const Component: FC<IProps> = (props) => {
-  const { element, className, handleInput, propValue } = props
+  const { id, element, className, handleInput, propValue, style } = props
   const { componentName } = element
-  return <div className={className}>{componentName === 'picture' && <Picture propValue={propValue} />}</div>
+
+  return (
+    <div className={className} style={style} id={id}>
+      {componentName === 'picture' && <Picture propValue={propValue} />}
+    </div>
+  )
 }
 
 export default memo(Component)

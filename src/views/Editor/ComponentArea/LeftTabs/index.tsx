@@ -1,12 +1,15 @@
 import React, { FC, memo, useContext, useRef, useEffect } from 'react'
 import { Tabs } from 'antd'
-import Scroll from '../../../../baseUI/Scroll'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 import SingleComponent from './SingleComponent'
 
 import './index.less'
 import { IComponentTabRender } from '../../../../customComponents'
 import { EditorContext } from '../../EditorContext'
 import { setActiveTab } from '../../store/componentArea/actionCreator'
+import { IRootDefaultState } from '../../../../store'
+import { IEditStore } from '../../store'
 
 const { TabPane } = Tabs
 
@@ -14,10 +17,20 @@ const TabContent: FC<{ content: string }> = (props) => {
   return <span className='vertical-text'>{props.content}</span>
 }
 
-export interface ILeftTabs {
+type PageStateProps = {
+  editorData: IEditStore
+}
+
+type PageDispatchProps = {
+  // [propsName: string]: any
+  setActiveTabDispatch: (payload: any) => void
+}
+export interface PageOwnProps {
   height: number
   tabsData: IComponentTabRender[]
 }
+
+type IProps = PageStateProps & PageDispatchProps & PageOwnProps
 
 const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
   if (e.target instanceof HTMLDivElement) {
@@ -27,17 +40,18 @@ const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
   }
 }
 
-const LeftTabs: FC<ILeftTabs> = (props) => {
-  const { editorData, editorDispatch } = useContext(EditorContext)
-
+const LeftTabs: FC<IProps> = (props) => {
+  const { editorData } = props
   const { currentTab } = editorData.componentArea
 
   const { tabsData = [], height } = props
 
+  const { setActiveTabDispatch } = props
+
   const mode = 'left'
 
   const handleChangeTabActive = (activeKey: string) => {
-    editorDispatch(setActiveTab(activeKey))
+    setActiveTabDispatch(activeKey)
   }
 
   return (
@@ -70,4 +84,13 @@ const LeftTabs: FC<ILeftTabs> = (props) => {
   )
 }
 
-export default memo(LeftTabs)
+export default connect(
+  (state: IRootDefaultState) => ({
+    editorData: state.get('editor'),
+  }),
+  (dispatch: Dispatch) => ({
+    setActiveTabDispatch(payload: any) {
+      dispatch(setActiveTab(payload))
+    },
+  }),
+)(memo(LeftTabs))
