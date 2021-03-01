@@ -2,10 +2,8 @@ import { AnyAction, Action, Dispatch } from 'redux'
 import toast from 'Src/utils/message'
 import store, { IRootDefaultState } from 'Src/store'
 import * as actionTypes from './actionTypes'
-import { IEditStore } from '..'
-import { IEditComponent, IEditState } from './reducer'
-import { swap } from '../../utils'
-import { deepCopy } from '../../../utils'
+import { swap, deepCopy } from '../../utils'
+import { IEditComponent } from '../../types'
 
 const setClickComponentStatus = (payload: string) => {
   return {
@@ -14,8 +12,10 @@ const setClickComponentStatus = (payload: string) => {
   }
 }
 
-export const setClickComponentStatusDispatch = (payload: any) => (dispatch: Dispatch) => {
-  dispatch(setClickComponentStatus(payload))
+export const setClickComponentStatusDispatch = (payload: any) => {
+  return (dispatch: Dispatch) => {
+    dispatch(setClickComponentStatus(payload))
+  }
 }
 
 const setEditMode = (payload: string) => {
@@ -41,14 +41,14 @@ export const setCanvasStyleDispatch = (payload: any) => (dispatch: Dispatch) => 
 }
 
 // { component, index }
-const setCurComponent = (payload: any) => {
+export const setCurComponent = (payload: any) => {
   return {
     type: actionTypes.SET_CUR_COMPONENT,
     payload,
   }
 }
 
-const setCurComponentIndex = (payload: any) => {
+export const setCurComponentIndex = (payload: any) => {
   return {
     type: actionTypes.SET_CUR_COMPONENT_INDEX,
     payload,
@@ -94,8 +94,10 @@ export const setShapeStyle: ISetShapeStyle = ({ curComponent, top, left, width, 
 //   ) => void
 // }
 
-export const setShapeStyleByDispatch = (store: IEditStore, dispatch: Dispatch, payload: any) => {
-  const { curComponent } = store.edit
+export const setShapeStyleByDispatch = (payload: any) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { curComponent } = edit
   const { top, left, width, height, rotate } = payload
   if (curComponent) {
     dispatch(setShapeStyle({ curComponent, top, left, width, height, rotate }))
@@ -117,8 +119,10 @@ export const setShapeSingleStyle: ISetShapeSingleStyle = (curComponent, { key, v
   }
 }
 
-export const setShapeSingleStyleDispatch = (store: IEditStore, dispatch: Dispatch, params: any) => {
-  const { curComponent } = store.edit
+export const setShapeSingleStyleDispatch = (params: any) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { curComponent } = edit
   if (curComponent) {
     dispatch(setShapeSingleStyle(curComponent, params))
   }
@@ -133,9 +137,8 @@ export const setComponentData = (payload: any) => {
 
 export const addComponentDispatch = (payload: { component: any; index?: number }) => (dispatch: Dispatch) => {
   const state = store.getState()
-  // const { componentData } = edit
-  const editor = (state as IRootDefaultState).get('editor')
-  const { componentData } = editor.edit
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { componentData } = edit
   const { index, component } = payload
 
   const componentDataCopy = deepCopy(componentData)
@@ -150,7 +153,9 @@ export const addComponentDispatch = (payload: { component: any; index?: number }
   dispatch(setComponentData(componentDataCopy))
 }
 
-export const deleteComponentDispatch = (edit: IEditState, index?: number) => (dispatch: Dispatch) => {
+export const deleteComponentDispatch = (index?: number) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
   if (index === undefined && edit.curComponentIndex) {
     index = edit.curComponentIndex
   }
@@ -159,7 +164,9 @@ export const deleteComponentDispatch = (edit: IEditState, index?: number) => (di
 }
 
 // NOTE: animation
-export const addAnimationDispatch = (edit: IEditState, animation: string) => (dispatch: Dispatch) => {
+export const addAnimationDispatch = (animation: string) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
   const { curComponent } = edit
   if (curComponent) {
     curComponent.animations.push(animation)
@@ -168,7 +175,9 @@ export const addAnimationDispatch = (edit: IEditState, animation: string) => (di
   }
 }
 
-export const removeAnimationDispatch = (edit: IEditState, index: number) => (dispatch: Dispatch) => {
+export const removeAnimationDispatch = (index: number) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
   const { curComponent } = edit
   if (curComponent) {
     curComponent.animations.splice(index, 1)
@@ -178,9 +187,9 @@ export const removeAnimationDispatch = (edit: IEditState, index: number) => (dis
 }
 
 // NOTE: event
-export const addEventDispatch = (edit: IEditState, payload: { eventName: string; param: any }) => (
-  dispatch: Dispatch,
-) => {
+export const addEventDispatch = (payload: { eventName: string; param: any }) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
   const { curComponent } = edit
   if (curComponent) {
     const { eventName, param } = payload
@@ -190,7 +199,9 @@ export const addEventDispatch = (edit: IEditState, payload: { eventName: string;
   }
 }
 
-export const removeEventDispatch = (edit: IEditState, eventName: string) => (dispatch: Dispatch) => {
+export const removeEventDispatch = (eventName: string) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
   const { curComponent } = edit
   if (curComponent) {
     delete curComponent.events[eventName]
@@ -211,53 +222,70 @@ export const setLockFalse = () => ({
 })
 
 // NOTE: layout
-export const upComponentDispatch = (edit: IEditState) => (dispatch: Dispatch) => {
-  const { componentData, curComponentIndex } = edit
-  if (curComponentIndex !== null) {
-    // 上移图层 index，表示元素在数组中越往后
-    if (curComponentIndex < componentData.length - 1) {
-      const swapedComponentData = swap(componentData, curComponentIndex, curComponentIndex + 1)
-      dispatch(setComponentData(swapedComponentData))
-    } else {
-      toast('已经到顶了')
+export const upComponentDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit } = (state as IRootDefaultState).get('editor')
+
+    const { componentData, curComponentIndex } = edit
+    if (curComponentIndex !== null) {
+      // 上移图层 index，表示元素在数组中越往后
+      if (curComponentIndex < componentData.length - 1) {
+        const swapedComponentData = swap(componentData, curComponentIndex, curComponentIndex + 1)
+        dispatch(setComponentData(swapedComponentData))
+      } else {
+        toast('已经到顶了')
+      }
     }
   }
 }
 
-export const downComponentDispatch = (store: IEditStore, dispatch: Dispatch) => {
-  const { componentData, curComponentIndex } = store.edit
-  // 下移图层 index，表示元素在数组中越往前
-  if (curComponentIndex !== null) {
-    if (curComponentIndex > 0) {
-      const swapedComponentData = swap(componentData, curComponentIndex, curComponentIndex - 1)
-      dispatch(setComponentData(swapedComponentData))
-    } else {
-      toast('已经到底了')
+export const downComponentDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit } = (state as IRootDefaultState).get('editor')
+    const { componentData, curComponentIndex } = edit
+    // 下移图层 index，表示元素在数组中越往前
+    if (curComponentIndex !== null) {
+      if (curComponentIndex > 0) {
+        const swapedComponentData = swap(componentData, curComponentIndex, curComponentIndex - 1)
+        dispatch(setComponentData(swapedComponentData))
+      } else {
+        toast('已经到底了')
+      }
     }
   }
 }
 
-export const upComponentTopDispatch = (store: IEditStore, dispatch: Dispatch) => {
-  const { componentData, curComponentIndex } = store.edit
-  if (curComponentIndex !== null) {
-    // 置顶
-    if (curComponentIndex < componentData.length - 1) {
-      const swapedComponentData = swap(componentData, curComponentIndex, componentData.length - 1)
-      dispatch(setComponentData(swapedComponentData))
-    } else {
-      toast('已经到顶了')
+export const upComponentTopDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit } = (state as IRootDefaultState).get('editor')
+    const { componentData, curComponentIndex } = edit
+    if (curComponentIndex !== null) {
+      // 置顶
+      if (curComponentIndex < componentData.length - 1) {
+        const swapedComponentData = swap(componentData, curComponentIndex, componentData.length - 1)
+        dispatch(setComponentData(swapedComponentData))
+      } else {
+        toast('已经到顶了')
+      }
     }
   }
 }
-export const downComponentBottomDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
-  const { componentData, curComponentIndex } = store.edit
-  if (curComponentIndex !== null) {
-    // 置底
-    if (curComponentIndex > 0) {
-      const swapedComponentData = swap(componentData, curComponentIndex, 0)
-      dispatch(setComponentData(swapedComponentData))
-    } else {
-      toast('已经到底了')
+export const downComponentBottomDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit } = (state as IRootDefaultState).get('editor')
+    const { componentData, curComponentIndex } = edit
+    if (curComponentIndex !== null) {
+      // 置底
+      if (curComponentIndex > 0) {
+        const swapedComponentData = swap(componentData, curComponentIndex, 0)
+        dispatch(setComponentData(swapedComponentData))
+      } else {
+        toast('已经到底了')
+      }
     }
   }
 }

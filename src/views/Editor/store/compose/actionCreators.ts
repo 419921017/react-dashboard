@@ -3,10 +3,11 @@ import store, { IRootDefaultState } from 'Src/store'
 import * as actionTypes from './actionTypes'
 import { IEditStore } from '..'
 import { deleteComponentDispatch, addComponentDispatch, setComponentData } from '../edit/actionCreators'
-import { IEditComponent, IEditState } from '../edit/reducer'
+import { IEditState } from '../edit/reducer'
 import decomposeComponent from '../../utils/decomposeComponent'
 import { IComposeState } from './reducer'
-import { deepCopy } from '../../../utils'
+import { deepCopy } from '../../utils'
+import { IEditComponent } from '../../types'
 
 export const setEditor = (payload: any) => ({
   type: actionTypes.SET_EDITOR,
@@ -17,6 +18,10 @@ export const setAreaData = (payload: any) => ({
   type: actionTypes.SET_AREA_DATA,
   payload,
 })
+
+export const setAreaDataDispatch = (payload: any) => (dispatch: Dispatch) => {
+  dispatch(setAreaData(payload))
+}
 
 export const batchDeleteComponentDispatch = (deleteData: any) => (dispatch: Dispatch) => {
   const state = store.getState()

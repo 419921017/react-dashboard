@@ -1,30 +1,29 @@
 type stringNumber = string | number
 
-type propVale = stringNumber | (string | number)[] | { [propName: string]: any }
+type propVale = stringNumber | (string | number | IEditComponent)[] | { [propName: string]: any }
 
 interface IEvent {
   [propName: string]: any
 }
-interface IAnimation {
-  [propName: string]: any
-}
+type IAnimation = any[]
 
 interface IStyle {
   // 组件样式
-  x: stringNumber
-  y: stringNumber
-  width: stringNumber
-  height: stringNumber
-  fontSize?: stringNumber
-  fontWeight?: stringNumber
-  lineHeight?: stringNumber
-  letterSpacing?: stringNumber
-  textAlign?: stringNumber
-  color?: stringNumber
+  x: number
+  y: number
+  width: number
+  height: number
+  fontSize?: number
+  fontWeight?: number
+  lineHeight?: number
+  letterSpacing?: number
+  textAlign?: 'string'
+  color?: string
   [propName: string]: any
 }
 
 export interface IComponentProps {
+  id?: number
   component: string // 组件名称
   label: string // 左侧组件列表中显示的名字
   propValue: propVale // 组件所使用的值
@@ -35,6 +34,6 @@ export interface IComponentProps {
   [propName: string]: any
 }
 
-export interface IComponentState {
-  isEdit: boolean
+export interface IEditComponent extends IComponentProps {
+  isLock: boolean
 }

@@ -1,4 +1,4 @@
-export type propValue =
+export type propValueType =
   | string
   | number
   | {
@@ -6,6 +6,6 @@ export type propValue =
     }
 
 export interface ICustomComponent {
-  propValue: propValue
+  propValue: propValueType
   [propsName: string]: any
 }

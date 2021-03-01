@@ -1,6 +1,8 @@
 import { Dispatch } from 'redux'
 import { ComponentType } from 'react'
 import toast from 'Src/utils/message'
+import store, { IRootDefaultState } from 'Src/store'
+
 import * as actionTypes from './actionTypes'
 import { deepCopy } from '../../utils'
 import { IEditStore } from '..'
@@ -27,23 +29,29 @@ export const cutState = (payload: any) => ({
   payload,
 })
 
-export const copyDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
-  const { curComponent, curComponentIndex } = store.edit
-  if (curComponent) {
-    const copyData = { data: deepCopy(curComponent), index: curComponentIndex }
-    dispatch(copy(copyData))
-    dispatch(cut(false))
+export const copyDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit } = (state as IRootDefaultState).get('editor')
+    const { curComponent, curComponentIndex } = edit
+    if (curComponent) {
+      const copyData = { data: deepCopy(curComponent), index: curComponentIndex }
+      dispatch(copy(copyData))
+      dispatch(cut(false))
+    }
   }
 }
 
-export const pasteDispatch = (store: IEditStore, isMouse: boolean) => (dispatch: Dispatch) => {
-  const { curComponent } = store.edit
+export const pasteDispatch = (isMouse: boolean) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit, copy, contextmenu } = (state as IRootDefaultState).get('editor')
+  const { curComponent } = edit
   if (!curComponent) {
     toast('请选择组件')
   }
 
-  const { copyData, isCut } = store.copy
-  const { menuLeft, menuTop } = store.contextmenu
+  const { copyData, isCut } = copy
+  const { menuLeft, menuTop } = contextmenu
   const { index } = copyData
   const data: ComponentType | any = deepCopy(copyData.data)
 
@@ -55,29 +63,33 @@ export const pasteDispatch = (store: IEditStore, isMouse: boolean) => (dispatch:
     data.style.top += 10
   }
   data.id = generateId()
-  addComponentDispatch(store.edit, { component: data, index })
+  addComponentDispatch({ component: data, index })
   if (isCut) {
     dispatch(copy(null))
   }
 }
 
-export const cutDispatch = (store: IEditStore) => (dispatch: Dispatch) => {
-  const { curComponent, curComponentIndex } = store.edit
-  const { copyData } = store.copy
-  if (!curComponent) {
-    toast('请选择组件')
-  }
-  if (copyData) {
-    const data: ComponentType | any = deepCopy(copyData.data)
-    const { index } = copyData
-    data.id = generateId()
-    addComponentDispatch(store.edit, { component: data, index })
-    if (curComponentIndex && curComponentIndex >= index) {
-      // 如果当前组件索引大于等于插入索引，需要加一，因为当前组件往后移了一位
-      setCurComponentIndex(curComponentIndex + 1)
+export const cutDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit, copy } = (state as IRootDefaultState).get('editor')
+    const { curComponent, curComponentIndex } = edit
+    const { copyData } = copy
+    if (!curComponent) {
+      toast('请选择组件')
     }
+    if (copyData) {
+      const data: ComponentType | any = deepCopy(copyData.data)
+      const { index } = copyData
+      data.id = generateId()
+      addComponentDispatch({ component: data, index })
+      if (curComponentIndex && curComponentIndex >= index) {
+        // 如果当前组件索引大于等于插入索引，需要加一，因为当前组件往后移了一位
+        setCurComponentIndex(curComponentIndex + 1)
+      }
+    }
+    copyDispatch()
+    deleteComponentDispatch()
+    dispatch(cutState(true))
   }
-  copyDispatch(store)
-  deleteComponentDispatch(store.edit)
-  dispatch(cutState(true))
 }

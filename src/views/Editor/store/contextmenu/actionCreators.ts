@@ -19,7 +19,8 @@ export const setContextMenuTop = (payload: any) => ({
   payload,
 })
 
-export const showContextMenuDispatch = (top: number, left: number) => (dispatch: Dispatch) => {
+export const showContextMenuDispatch = (point: { top: number; left: number }) => (dispatch: Dispatch) => {
+  const { top, left } = point
   dispatch(showContextMenu())
   dispatch(setContextMenuTop(top))
   dispatch(setContextMenuLeft(left))
