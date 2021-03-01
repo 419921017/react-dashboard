@@ -70,7 +70,7 @@ const Editor: FC<RouteComponentProps<PageOwnProps> & IProps> = (props) => {
 
 export default connect(
   (state: IRootDefaultState) => ({
-    // editorData: state.get('editor'),
+    editorData: state.get('editor'),
   }),
   (dispatch: Dispatch) => ({
     setEditModeDispatch(payload: string) {

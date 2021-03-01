@@ -38,8 +38,8 @@ module.exports = {
     },
   },
   rules: {
-    'no-restricted-syntax': 'warn',
-    'default-case': 'warn',
+    'no-restricted-syntax': 'off',
+    'default-case': 'off',
     'jsx-a11y/no-static-element-interactions': 'warn',
     'no-shadow': ['warn', { builtinGlobals: false, hoist: 'functions', allow: [] }],
     'unicorn/no-reduce': 'warn',
