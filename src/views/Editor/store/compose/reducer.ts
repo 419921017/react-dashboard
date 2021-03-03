@@ -2,7 +2,8 @@ import { produce } from 'immer'
 import { Reducer } from 'redux'
 
 import * as actionTypes from './actionTypes'
-import { IEditComponent } from '../edit/reducer'
+import { $ } from '../../utils'
+import { IEditComponent } from '../../types'
 
 export interface IComposeState {
   areaData: {
@@ -34,7 +35,7 @@ const reducer: Reducer = (state = defaultState, action: any) =>
   produce(state, (draft: IComposeState) => {
     switch (action.type) {
       case actionTypes.SET_EDITOR:
-        draft.editor = action.payload
+        draft.editor = $(action.payload)
         return
       case actionTypes.SET_AREA_DATA:
         draft.areaData = action.payload

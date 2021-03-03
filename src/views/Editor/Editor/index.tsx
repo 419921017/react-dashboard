@@ -1,6 +1,6 @@
 import React, { memo, FC, useEffect } from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
-import { Dispatch, Action } from 'redux'
+import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
 import ComponentArea from '../ComponentArea'
@@ -10,9 +10,7 @@ import AttrArea from '../AttrArea'
 
 import './index.less'
 import { IRootDefaultState } from '../../../store'
-import * as actions from '../store/edit/actionCreators'
 import { setEditModeDispatch } from '../store/edit/actionCreators'
-import { IEditStore } from '../store'
 
 type PageStateProps = {
   // editorData: IEditStore

@@ -74,3 +74,21 @@ export const composeDispatch = () => {
     areaData.components = []
   }
 }
+
+export const decomposeDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = store.getState()
+    const { edit, compose } = (state as IRootDefaultState).get('editor')
+    const { curComponent } = edit
+    const { editor } = compose
+
+    const parentStyle = { ...curComponent.style }
+    const components = curComponent.propValue
+    const editorRect = editor.getBoundingClientRect()
+    deleteComponentDispatch()
+    components.forEach((component: any) => {
+      decomposeComponent(component, editorRect, parentStyle)
+      addComponentDispatch({ component })
+    })
+  }
+}

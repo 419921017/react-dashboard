@@ -1,20 +1,16 @@
 import { AnyAction, Action, Dispatch } from 'redux'
 import toast from 'Src/utils/message'
 import store, { IRootDefaultState } from 'Src/store'
+import Index from 'Src/views/Index'
 import * as actionTypes from './actionTypes'
 import { swap, deepCopy } from '../../utils'
 import { IEditComponent } from '../../types'
+import { IEditStore } from '..'
 
 const setClickComponentStatus = (payload: string) => {
   return {
     type: actionTypes.SET_CLICK_COMPONENT_STATUS,
     payload,
-  }
-}
-
-export const setClickComponentStatusDispatch = (payload: any) => {
-  return (dispatch: Dispatch) => {
-    dispatch(setClickComponentStatus(payload))
   }
 }
 
@@ -25,21 +21,18 @@ const setEditMode = (payload: string) => {
   }
 }
 
-export const setEditModeDispatch = (payload: string) => (dispatch: any) => {
-  dispatch(setEditMode(payload))
-}
-
 const setCanvasStyle = (payload: any) => {
   return {
     type: actionTypes.SET_CANVAS_STYLE,
     payload,
   }
 }
-
-export const setCanvasStyleDispatch = (payload: any) => (dispatch: Dispatch) => {
-  dispatch(setCanvasStyle(payload))
+export const setComponentData = (payload: any) => {
+  return {
+    type: actionTypes.SET_COMPONENT_DATA,
+    payload,
+  }
 }
-
 // { component, index }
 export const setCurComponent = (payload: any) => {
   return {
@@ -55,84 +48,18 @@ export const setCurComponentIndex = (payload: any) => {
   }
 }
 
-export const setCurComponentAndComponentIndexDispatch = (payload: any) => (dispatch: Dispatch) => {
-  const { component, index } = payload
-  dispatch(setCurComponent(component))
-  dispatch(setCurComponentIndex(index))
-}
-
-interface ISetShapeStyle {
-  (params: {
-    curComponent: IEditComponent
-    top: number
-    left: number
-    width: number
-    height: number
-    rotate: number
-  }): AnyAction
-}
-
-export const setShapeStyle: ISetShapeStyle = ({ curComponent, top, left, width, height, rotate }) => {
-  return {
-    type: actionTypes.SET_SHAPE_STYLE,
-    payload: {
-      curComponent,
-      style: {
-        top,
-        left,
-        width,
-        height,
-        rotate,
-      },
-    },
+export const setClickComponentStatusDispatch = (payload: any) => {
+  return (dispatch: Dispatch) => {
+    dispatch(setClickComponentStatus(payload))
   }
 }
 
-// interface ISetShapeStyleByDispatch {
-//   (store: IEditStore, style: { top: number; left: number; width: number; height: number; rotate: number }): (
-//     dispatch: Dispatch,
-//   ) => void
-// }
-
-export const setShapeStyleByDispatch = (payload: any) => (dispatch: Dispatch) => {
-  const state = store.getState()
-  const { edit } = (state as IRootDefaultState).get('editor')
-  const { curComponent } = edit
-  const { top, left, width, height, rotate } = payload
-  if (curComponent) {
-    dispatch(setShapeStyle({ curComponent, top, left, width, height, rotate }))
-  }
+export const setEditModeDispatch = (payload: string) => (dispatch: any) => {
+  dispatch(setEditMode(payload))
 }
 
-interface ISetShapeSingleStyle {
-  (curComponent: IEditComponent, params: { key: string; value: any }): AnyAction
-}
-
-export const setShapeSingleStyle: ISetShapeSingleStyle = (curComponent, { key, value }) => {
-  return {
-    type: actionTypes.SET_SHAPE_SINGLE_STYLE,
-    payload: {
-      curComponent,
-      key,
-      value,
-    },
-  }
-}
-
-export const setShapeSingleStyleDispatch = (params: any) => (dispatch: Dispatch) => {
-  const state = store.getState()
-  const { edit } = (state as IRootDefaultState).get('editor')
-  const { curComponent } = edit
-  if (curComponent) {
-    dispatch(setShapeSingleStyle(curComponent, params))
-  }
-}
-
-export const setComponentData = (payload: any) => {
-  return {
-    type: actionTypes.SET_COMPONENT_DATA,
-    payload,
-  }
+export const setCanvasStyleDispatch = (payload: any) => (dispatch: Dispatch) => {
+  dispatch(setCanvasStyle(payload))
 }
 
 export const addComponentDispatch = (payload: { component: any; index?: number }) => (dispatch: Dispatch) => {
@@ -163,6 +90,97 @@ export const deleteComponentDispatch = (index?: number) => (dispatch: Dispatch) 
   dispatch(setComponentData(componentDataCopy))
 }
 
+export const setCurComponentAndComponentIndexDispatch = (payload: any) => (dispatch: Dispatch) => {
+  const { component, index } = payload
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { componentData } = edit
+
+  const componentDataCopy = deepCopy(componentData)
+  if (index !== undefined) {
+    componentDataCopy.splice(index, 1, component)
+  } else {
+    componentDataCopy.push(component)
+  }
+
+  dispatch(setCurComponent(component))
+  dispatch(setCurComponentIndex(index))
+  dispatch(setComponentData(componentDataCopy))
+}
+
+interface ISetShapeStyle {
+  (params: {
+    curComponent: IEditComponent
+    top: number
+    left: number
+    width: number
+    height: number
+    rotate: number
+  }): AnyAction
+}
+
+export const setShapeStyle: ISetShapeStyle = (payload: any) => {
+  return {
+    type: actionTypes.SET_SHAPE_STYLE,
+    payload,
+  }
+}
+
+// interface ISetShapeStyleByDispatch {
+//   (store: IEditStore, style: { top: number; left: number; width: number; height: number; rotate: number }): (
+//     dispatch: Dispatch,
+//   ) => void
+// }
+
+export const setShapeStyleByDispatch = (payload: any) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const editor: IEditStore = (state as IRootDefaultState).get('editor')
+  const { edit } = editor
+  const { curComponent } = edit
+  if (curComponent) {
+    const { top, left, width, height, rotate } = payload
+
+    const curComponentClone = deepCopy(curComponent)
+    if (top) curComponentClone.style.top = top
+    if (left) curComponentClone.style.left = left
+    if (width) curComponentClone.style.width = width
+    if (height) curComponentClone.style.height = height
+    if (rotate) curComponentClone.style.rotate = rotate
+
+    // dispatch(setShapeStyle(curComponentClone))
+    dispatch(setCurComponent(curComponentClone))
+    // NOTE: 还需要改变componentData的数据
+    const index = edit.curComponentIndex || 0
+    const componentDataCopy = deepCopy(edit.componentData)
+    componentDataCopy.splice(index as number, 1, curComponentClone)
+    dispatch(setComponentData(componentDataCopy))
+  }
+}
+
+interface ISetShapeSingleStyle {
+  (curComponent: IEditComponent, params: { key: string; value: any }): AnyAction
+}
+
+export const setShapeSingleStyle: ISetShapeSingleStyle = (curComponent, { key, value }) => {
+  return {
+    type: actionTypes.SET_SHAPE_SINGLE_STYLE,
+    payload: {
+      curComponent,
+      key,
+      value,
+    },
+  }
+}
+
+export const setShapeSingleStyleDispatch = (params: any) => (dispatch: Dispatch) => {
+  const state = store.getState()
+  const { edit } = (state as IRootDefaultState).get('editor')
+  const { curComponent } = edit
+  if (curComponent) {
+    dispatch(setShapeSingleStyle(curComponent, params))
+  }
+}
+
 // NOTE: animation
 export const addAnimationDispatch = (animation: string) => (dispatch: Dispatch) => {
   const state = store.getState()
@@ -172,6 +190,12 @@ export const addAnimationDispatch = (animation: string) => (dispatch: Dispatch) 
     curComponent.animations.push(animation)
     const curComponentByAnimation = curComponent
     dispatch(setCurComponent(curComponentByAnimation))
+
+    // NOTE: 还需要改变componentData的数据
+    const index = edit.curComponentIndex || 0
+    const componentDataCopy = deepCopy(edit.componentData)
+    componentDataCopy.splice(index as number, 1, curComponentByAnimation)
+    dispatch(setComponentData(componentDataCopy))
   }
 }
 
@@ -183,6 +207,11 @@ export const removeAnimationDispatch = (index: number) => (dispatch: Dispatch) =
     curComponent.animations.splice(index, 1)
     const curComponentByAnimation = curComponent
     dispatch(setCurComponent(curComponentByAnimation))
+
+    // NOTE: 还需要改变componentData的数据
+    const componentDataCopy = deepCopy(edit.componentData)
+    componentDataCopy.splice(index as number, 1, curComponentByAnimation)
+    dispatch(setComponentData(componentDataCopy))
   }
 }
 
@@ -196,6 +225,12 @@ export const addEventDispatch = (payload: { eventName: string; param: any }) => 
     curComponent.events[eventName] = param
     const curComponentByEvent = curComponent
     dispatch(setCurComponent(curComponentByEvent))
+
+    // NOTE: 还需要改变componentData的数据
+    const index = edit.curComponentIndex || 0
+    const componentDataCopy = deepCopy(edit.componentData)
+    componentDataCopy.splice(index as number, 1, curComponentByEvent)
+    dispatch(setComponentData(componentDataCopy))
   }
 }
 
@@ -207,6 +242,12 @@ export const removeEventDispatch = (eventName: string) => (dispatch: Dispatch) =
     delete curComponent.events[eventName]
     const curComponentByEvent = curComponent
     dispatch(setCurComponent(curComponentByEvent))
+
+    // NOTE: 还需要改变componentData的数据
+    const index = edit.curComponentIndex || 0
+    const componentDataCopy = deepCopy(edit.componentData)
+    componentDataCopy.splice(index as number, 1, curComponentByEvent)
+    dispatch(setComponentData(componentDataCopy))
   }
 }
 

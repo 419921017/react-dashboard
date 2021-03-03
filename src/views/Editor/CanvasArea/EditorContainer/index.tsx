@@ -3,8 +3,7 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import Component from 'Src/customComponents/Component'
 
-import componentList from '../../../../customComponents'
-import { deepCopy, $ } from '../../utils'
+import { $ } from '../../utils'
 import { getComponentRotatedStyle, getStyle } from '../../utils/style'
 
 import { IRootDefaultState } from '../../../../store'
@@ -15,10 +14,14 @@ import Grid from '../Grid'
 import Shape from '../Shape'
 
 import { showContextMenuDispatch } from '../../store/contextmenu/actionCreators'
-import { setEditor, setAreaData, setAreaDataDispatch } from '../../store/compose/actionCreators'
+import { setEditor, setAreaDataDispatch } from '../../store/compose/actionCreators'
 import eventBus from '../../utils/eventBus'
 import { IEditComponent } from '../../types'
 import { setShapeStyle, setShapeStyleByDispatch } from '../../store/edit/actionCreators'
+import ContextMenu from '../ContextMenu'
+import MarkLine from '../MarkLine'
+import Area from '../Area'
+import { changeStyleWithScale } from '../../utils/translate'
 
 const getShapeStyle: any = (style: any) => {
   const result: any = {}
@@ -179,13 +182,15 @@ const EditorContainer: FC<IProps> = (props) => {
     })
   }
 
+  // NOTE: 初始化
   useEffect(() => {
     // 注册编辑器
     setEditorDispatch('#editor')
     // hideArea
-    eventBus.addListener('hideArea', () => {
-      hideArea()
-    })
+    eventBus.addListener('hideArea', hideArea)
+    return () => {
+      eventBus.removeListener('hideArea', hideArea)
+    }
   }, [])
 
   const handleEditorContextMenu = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -210,7 +215,6 @@ const EditorContainer: FC<IProps> = (props) => {
         target = target.parentNode as HTMLElement
       }
     }
-
     showContextMenuDispatch({ top, left })
   }
 
@@ -239,6 +243,7 @@ const EditorContainer: FC<IProps> = (props) => {
       const move = (moveEvent: MouseEvent) => {
         const width = Math.abs(moveEvent.clientX - startX)
         const height = Math.abs(moveEvent.clientY - startY)
+
         setWidth(width)
         setHeight(height)
 
@@ -255,6 +260,7 @@ const EditorContainer: FC<IProps> = (props) => {
           })
         }
       }
+
       const up = (e: MouseEvent) => {
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
@@ -272,28 +278,32 @@ const EditorContainer: FC<IProps> = (props) => {
     }
   }
 
+  useEffect(() => {
+    console.log('componentData', componentData)
+  }, [componentData])
+
   return (
     <div
       role='main'
       className={`editor ${editMode}`}
       id='editor'
       style={{
-        width: canvasStyleData.width,
-        height: canvasStyleData.height,
-        transform: `scale(${canvasStyleData.scale / 100})`,
+        width: `${changeStyleWithScale(canvasStyleData.width)}px`,
+        height: `${changeStyleWithScale(canvasStyleData.height)}px`,
       }}
       onContextMenu={handleEditorContextMenu}
       onMouseDown={handleEditorMouseDown}
     >
       <Grid />
       {componentData.map((item, index) => {
-        const style = getComponentStyle(item.style)
+        const shapeStyle = getShapeStyle(item.style)
+        const componentStyle = getComponentStyle(item.style)
         const { propValue } = item
         const element = item
         const id = `component${item.id}`
         const className = 'component'
-        const propsVale = {
-          style,
+        const propsValue = {
+          style: componentStyle,
           propValue,
           element,
           id,
@@ -302,7 +312,7 @@ const EditorContainer: FC<IProps> = (props) => {
         return (
           <Shape
             defaultStyle={item.style}
-            style={style}
+            style={shapeStyle}
             key={id}
             active={item === curComponent}
             element={element}
@@ -310,13 +320,19 @@ const EditorContainer: FC<IProps> = (props) => {
             className={item.isLock ? 'lock' : ''}
           >
             {item.component !== 'w-text' ? (
-              <Component {...propsVale} />
+              <Component {...propsValue} />
             ) : (
-              <Component {...propsVale} handleInput={handleInput} />
+              <Component {...propsValue} handleInput={handleInput} />
             )}
           </Shape>
         )
       })}
+      {/* {右侧菜单} */}
+      <ContextMenu />
+      {/* 标记线 */}
+      {/* <MarkLine /> */}
+      {/* 选中区域 */}
+      {/* {isShowArea && <Area start={start} width={width} height={height} />} */}
     </div>
   )
 }
@@ -329,8 +345,14 @@ export default connect(
     setEditorDispatch(payload: string) {
       dispatch(setEditor(payload))
     },
-    showContextMenuDispatch,
-    setAreaDataDispatch,
-    setShapeStyleByDispatch,
+    showContextMenuDispatch(payload: any) {
+      dispatch(showContextMenuDispatch(payload) as any)
+    },
+    setAreaDataDispatch(payload: any) {
+      dispatch(setAreaDataDispatch(payload) as any)
+    },
+    setShapeStyleByDispatch(payload: any) {
+      dispatch(setShapeStyleByDispatch(payload) as any)
+    },
   }),
 )(memo(EditorContainer))

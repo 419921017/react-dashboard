@@ -15,21 +15,27 @@ export const setSnapshotIndex = (payload: any) => ({
   payload,
 })
 
-export const unDoDispatch = (snapshot: ISnapshotState) => (dispatch: Dispatch) => {
-  const { snapshotData, snapshotIndex } = snapshot
-  if (snapshotIndex >= 0) {
-    const index = snapshotIndex - 1
-    const clonedSnapshotData = deepCopy(snapshotData[index])
-    dispatch(setSnapshotData(clonedSnapshotData))
+export const unDoDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = (store.getState() as IRootDefaultState).get('editor')
+    const { snapshotData, snapshotIndex } = state.snapshot
+    if (snapshotIndex >= 0) {
+      const index = snapshotIndex - 1
+      const clonedSnapshotData = deepCopy(snapshotData[index])
+      dispatch(setSnapshotData(clonedSnapshotData))
+    }
   }
 }
-export const reDoDispatch = (snapshot: ISnapshotState) => (dispatch: Dispatch) => {
-  const { snapshotData, snapshotIndex } = snapshot
+export const reDoDispatch = () => {
+  return (dispatch: Dispatch) => {
+    const state = (store.getState() as IRootDefaultState).get('editor')
+    const { snapshotData, snapshotIndex } = state.snapshot
 
-  if (snapshotIndex < snapshotData.length - 1) {
-    const index = snapshotIndex + 1
-    const clonedSnapshotData = deepCopy(snapshotData[index])
-    dispatch(setSnapshotData(clonedSnapshotData))
+    if (snapshotIndex < snapshotData.length - 1) {
+      const index = snapshotIndex + 1
+      const clonedSnapshotData = deepCopy(snapshotData[index])
+      dispatch(setSnapshotData(clonedSnapshotData))
+    }
   }
 }
 

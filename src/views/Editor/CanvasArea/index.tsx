@@ -28,7 +28,7 @@ type PageDispatchProps = {
   recordSnapshotDispatch: () => void
   setClickComponentStatusDispatch: (payload: any) => void
   setCurComponentAndComponentIndexDispatch: (payload: any) => void
-  hideContextMenu: () => void
+  hideContextMenuDispatch: () => void
 }
 
 type PageOwnProps = {
@@ -46,11 +46,7 @@ const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
 
 const CanvasArea: FC<IProps> = (props) => {
   const { editorData } = props
-  const {
-    editMode,
-    isClickComponent,
-    canvasStyleData: { width, height, scale },
-  } = editorData.edit
+  const { editMode, isClickComponent } = editorData.edit
   const { currentTab } = editorData.componentArea
 
   const {
@@ -58,13 +54,8 @@ const CanvasArea: FC<IProps> = (props) => {
     recordSnapshotDispatch,
     setClickComponentStatusDispatch,
     setCurComponentAndComponentIndexDispatch,
-    hideContextMenu,
+    hideContextMenuDispatch,
   } = props
-
-  useEffect(() => {
-    console.log('editorData.edit', editorData.edit)
-    console.log('editorData.snapshot', editorData.snapshot)
-  }, [editorData])
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLElement>) => {
@@ -80,24 +71,26 @@ const CanvasArea: FC<IProps> = (props) => {
       component.style.top = e.nativeEvent.offsetY
       component.style.left = e.nativeEvent.offsetX
       component.id = generateId()
-      console.log('component', component)
       addComponentDispatch({ component })
       recordSnapshotDispatch()
     },
     [currentTab],
   )
 
-  const handleEditorContainerMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    setClickComponentStatusDispatch(false)
-    hideContextMenu()
-    if (!isClickComponent) {
-      setCurComponentAndComponentIndexDispatch({ component: null, index: null })
-    }
-  }
+  const handleEditorContainerMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      setClickComponentStatusDispatch(false)
+      hideContextMenuDispatch()
+      if (!isClickComponent) {
+        setCurComponentAndComponentIndexDispatch({ component: null, index: null })
+      }
+    },
+    [isClickComponent],
+  )
 
   const handleMouseUp = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      hideContextMenu()
+      hideContextMenuDispatch()
       if (!isClickComponent) {
         setCurComponentAndComponentIndexDispatch({ component: null, index: null })
       }
@@ -137,6 +130,8 @@ export default connect(
     setCurComponentAndComponentIndexDispatch(payload: any) {
       dispatch(setCurComponentAndComponentIndexDispatch(payload) as any)
     },
-    hideContextMenu,
+    hideContextMenuDispatch() {
+      dispatch(hideContextMenu())
+    },
   }),
 )(memo(CanvasArea))

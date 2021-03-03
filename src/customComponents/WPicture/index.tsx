@@ -1,7 +1,7 @@
 import React, { FC, memo } from 'react'
 import { ICustomComponent } from '../types'
 
-const Picture: FC<ICustomComponent> = (props) => {
+const WPicture: FC<ICustomComponent> = (props) => {
   const { propValue, alt = '' } = props
   return (
     <div style={{ overflow: 'hidden' }}>
@@ -10,4 +10,4 @@ const Picture: FC<ICustomComponent> = (props) => {
   )
 }
 
-export default memo(Picture)
+export default memo(WPicture)

@@ -42,7 +42,7 @@ export const copyDispatch = () => {
   }
 }
 
-export const pasteDispatch = (isMouse: boolean) => (dispatch: Dispatch) => {
+export const pasteDispatch = (isMouse?: boolean) => (dispatch: Dispatch) => {
   const state = store.getState()
   const { edit, copy, contextmenu } = (state as IRootDefaultState).get('editor')
   const { curComponent } = edit

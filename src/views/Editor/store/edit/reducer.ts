@@ -67,13 +67,7 @@ const reducer: Reducer = (state = defaultState, action: any) =>
         draft.curComponentIndex = action.payload
         return
       case actionTypes.SET_SHAPE_STYLE: {
-        const { curComponent, top, left, width, height, rotate } = action.payload
-        if (top) curComponent.style.top = top
-        if (left) curComponent.style.left = left
-        if (width) curComponent.style.width = width
-        if (height) curComponent.style.height = height
-        if (rotate) curComponent.style.rotate = rotate
-        draft.curComponent = curComponent
+        draft.curComponent = action.payload
         return
       }
       case actionTypes.SET_SHAPE_SINGLE_STYLE: {
@@ -83,9 +77,11 @@ const reducer: Reducer = (state = defaultState, action: any) =>
         return
       }
       case actionTypes.SET_COMPONENT_DATA:
-        draft.componentData = action.payload
-      // default:
-      //   return state
+        console.log(actionTypes.SET_COMPONENT_DATA, action.payload)
+        // TODO: 点击空白处也会改变componentData, 这后面要修复下
+        if (action.payload && Object.values(action.payload).every((item) => item)) {
+          draft.componentData = action.payload
+        }
     }
   })
 

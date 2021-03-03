@@ -1,3 +1,6 @@
+import store, { IRootDefaultState } from '../../../store'
+import { IEditStore } from '../store'
+
 // 角度转弧度
 // Math.PI = 180 度
 function angleToRadian(angle: number): number {
@@ -140,4 +143,12 @@ export function cos(rotate: number) {
 
 export function mod360(deg: number) {
   return (deg + 360) % 360
+}
+
+export function changeStyleWithScale(value: number) {
+  const editor: IEditStore = (store.getState() as IRootDefaultState).get('editor')
+  const {
+    edit: { canvasStyleData },
+  } = editor
+  return (value * canvasStyleData.scale) / 100
 }

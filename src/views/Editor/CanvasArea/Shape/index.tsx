@@ -1,6 +1,7 @@
 /* eslint-disable radix */
 import React, { FC, memo, useState, useEffect, useRef, PropsWithChildren, ReactNode } from 'react'
 import { connect } from 'react-redux'
+import { LockOutlined, RedoOutlined } from '@ant-design/icons'
 import { IEditComponent } from '../../types'
 import { IRootDefaultState } from '../../../../store'
 import { IEditStore } from '../../store'
@@ -16,20 +17,29 @@ import {
 import calculateComponentPositionAndSize from '../../utils/calculateComponentPositionAndSize'
 import { recordSnapshotDispatch } from '../../store/snapshot/actionCreators'
 
-interface IPoint {
-  lt: number
-  t: number
-  rt: number
-  r: number
-  rb: number
-  b: number
-  lb: number
-  l: number
+import './index.less'
+
+interface IPoint<T> {
+  lt: T
+  t: T
+  rt: T
+  r: T
+  rb: T
+  b: T
+  lb: T
+  l: T
+}
+interface IPointStyle {
+  marginLeft: string
+  marginTop: string
+  left: string
+  top: string
+  cursor: string
 }
 
-const pointList: (keyof IPoint)[] = ['lt', 't', 'rt', 'r', 'rb', 'b', 'lb', 'l'] // 八个方向
+const pointList: (keyof IPoint<string>)[] = ['lt', 't', 'rt', 'r', 'rb', 'b', 'lb', 'l'] // 八个方向
 
-const initialAngle: IPoint = {
+const initialAngle: IPoint<number> = {
   // 每个点对应的初始角度
   lt: 0,
   t: 45,
@@ -63,6 +73,7 @@ type PageDispatchProps = {
   setClickComponentStatusDispatch: (payload: any) => void
   recordSnapshotDispatch: () => void
   setCurComponentAndComponentIndexDispatch: (payload: any) => void
+  setShapeStyleByDispatch: (payload: any) => void
 }
 
 type PageOwnProps = {
@@ -86,26 +97,38 @@ const Shape: FC<IProps> = (props) => {
   const { curComponent } = editorData.edit
   const { editor } = editorData.compose
 
-  const { active, element, defaultStyle, index } = props
+  const { active, element, defaultStyle, index, className, style } = props
 
   const {
     hideContextMenuDispatch,
     setClickComponentStatusDispatch,
+    setShapeStyleByDispatch,
     recordSnapshotDispatch,
     setCurComponentAndComponentIndexDispatch,
   } = props
 
   const [isActive, setIsActive] = useState(false)
-  const [cursors, setCursors] = useState<{ [propName: string]: any }>({})
+  const [cursors, setCursors] = useState<IPoint<string>>({
+    lt: '',
+    t: '',
+    rt: '',
+    r: '',
+    rb: '',
+    b: '',
+    lb: '',
+    l: '',
+  })
 
   const shapeRef = useRef<HTMLDivElement>(null)
 
-  const getCursor: () => IPoint = () => {
+  // 处理四个点上的鼠标样式
+  const getCursor: () => IPoint<string> = () => {
+    const result: IPoint<string> = { lt: '', t: '', rt: '', r: '', rb: '', b: '', lb: '', l: '' }
+
     if (!curComponent) {
-      return
+      return result
     }
     const rotate = mod360(curComponent.style.rotate) // 取余 360
-    const result: any = {}
     let lastMatchIndex = -1 // 从上一个命中的角度的索引开始匹配下一个，降低时间复杂度
 
     pointList.forEach((point) => {
@@ -131,30 +154,8 @@ const Shape: FC<IProps> = (props) => {
     return result
   }
 
-  useEffect(() => {
-    if (curComponent) {
-      const cursors = getCursor()
-      setCursors(cursors)
-    }
-  }, [])
-
-  useEffect(() => {
-    eventBus.addListener('runAnimation', () => {
-      if (element === curComponent) {
-        runAnimation(shapeRef.current, curComponent.animations)
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    if (active && !element.isLock) {
-      setIsActive(true)
-    } else {
-      false
-    }
-  }, [active, element.isLock])
-
-  const getPointStyle = (point: string) => {
+  // 处理四个点的样式
+  const getPointStyle: (point: keyof IPoint<string>) => IPointStyle = (point) => {
     const { width, height } = defaultStyle
     const hasT = /t/.test(point)
     const hasB = /b/.test(point)
@@ -192,6 +193,41 @@ const Shape: FC<IProps> = (props) => {
     return style
   }
 
+  // NOTE: effect
+
+  // 处理cursor的样式
+  useEffect(() => {
+    if (curComponent) {
+      const cursors = getCursor()
+      setCursors(cursors)
+    }
+  }, [])
+
+  // 处理动画
+  useEffect(() => {
+    const runAnimationFn = () => {
+      if (element === curComponent) {
+        runAnimation(shapeRef.current, curComponent.animations)
+      }
+    }
+    eventBus.addListener('runAnimation', runAnimationFn)
+    return () => {
+      eventBus.removeListener('runAnimation', runAnimationFn)
+    }
+  }, [])
+
+  // 处理active状态
+  useEffect(() => {
+    if (active && !element.isLock) {
+      setIsActive(true)
+    }
+  }, [active, element.isLock])
+
+  useEffect(() => {
+    console.log('curComponent', curComponent)
+  }, [curComponent])
+
+  // Group组件放大缩小时, 锁定比例
   const isNeedLockProportion = () => {
     if (element.component !== 'Group') return false
     const ratates = new Set([0, 90, 180, 360])
@@ -205,6 +241,7 @@ const Shape: FC<IProps> = (props) => {
     return false
   }
 
+  // 选择当前组件
   const selectCurComponent = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // 阻止向父组件冒泡
     e.stopPropagation()
@@ -212,13 +249,17 @@ const Shape: FC<IProps> = (props) => {
     hideContextMenuDispatch()
   }
 
+  // shape上的mouseDown事件
   const handleMouseDownOnShape = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // 设置组件点击状态
     setClickComponentStatusDispatch(true)
-    if (element.component !== 'v-text' && element.component !== 'rect-shape') {
+
+    if (element.component !== 'w-text' && element.component !== 'rect-shape') {
       e.preventDefault()
     }
     e.stopPropagation()
 
+    // 设置当前组件和当前组件的索引
     setCurComponentAndComponentIndexDispatch({ component: element, index })
 
     if (element.isLock) return
@@ -237,24 +278,26 @@ const Shape: FC<IProps> = (props) => {
 
     // 如果元素没有移动，则不保存快照
     let hasMove = false
+
     const move = (moveEvent: MouseEvent) => {
       hasMove = true
       const curX = moveEvent.clientX
       const curY = moveEvent.clientY
       pos.top = curY - startY + startTop
       pos.left = curX - startX + startLeft
+      console.log('pos', pos.top, pos.left)
 
       // 修改当前组件样式
       setShapeStyleByDispatch(pos)
       // 等更新完当前组件的样式并绘制到屏幕后再判断是否需要吸附
       // 如果不使用下一个执行帧，吸附后将无法移动
-      setTimeout(() => {
-        // 触发元素移动事件，用于显示标线、吸附功能
-        // 后面两个参数代表鼠标移动方向
-        // curY - startY > 0 true 表示向下移动 false 表示向上移动
-        // curX - startX > 0 true 表示向右移动 false 表示向左移动
-        eventBus.emit('move', curY - startY > 0, curX - startX > 0)
-      })
+      // setTimeout(() => {
+      // 触发元素移动事件，用于显示标线、吸附功能
+      // 后面两个参数代表鼠标移动方向
+      // curY - startY > 0 true 表示向下移动 false 表示向上移动
+      // curX - startX > 0 true 表示向右移动 false 表示向左移动
+      eventBus.emit('move', curY - startY > 0, curX - startX > 0)
+      // }, 0)
     }
 
     const up = () => {
@@ -269,6 +312,7 @@ const Shape: FC<IProps> = (props) => {
     document.addEventListener('mouseup', up)
   }
 
+  // 处理旋转
   const handleRotate = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
     setClickComponentStatusDispatch(true)
     e.preventDefault()
@@ -314,7 +358,8 @@ const Shape: FC<IProps> = (props) => {
     document.addEventListener('mouseup', up)
   }
 
-  const handleMouseDownOnPoint = (point: keyof IPoint, e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  // 处理point上的mouseDown事件
+  const handleMouseDownOnPoint = (point: keyof IPoint<string>, e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     setClickComponentStatusDispatch(true)
     e.stopPropagation()
     e.preventDefault()
@@ -350,6 +395,7 @@ const Shape: FC<IProps> = (props) => {
     let isFirst = true
 
     const needLockProportion = isNeedLockProportion()
+
     const move = (moveEvent: MouseEvent) => {
       // 第一次点击时也会触发 move，所以会有“刚点击组件但未移动，组件的大小却改变了”的情况发生
       // 因此第一次点击时不触发 move 事件
@@ -385,25 +431,30 @@ const Shape: FC<IProps> = (props) => {
 
   return (
     <div
-      role='main'
-      className={`shape ${active ? 'active' : ''}`}
+      role='contentinfo'
+      className={`shape ${active ? 'active' : ''} ${className}`}
+      style={style}
       ref={shapeRef}
       onClick={selectCurComponent}
       onMouseDown={handleMouseDownOnShape}
     >
       {active && !element.isLock && (
-        <span role='contentinfo' className='iconfont icon-xiangyouxuanzhuan' onMouseDown={handleRotate} />
+        <span role='contentinfo' className='iconfont icon-xiangyouxuanzhuan' onMouseDown={handleRotate}>
+          <RedoOutlined />
+        </span>
       )}
-      <span
-        role='contentinfo'
-        className='iconfont icon-xiangyouxuanzhuan'
-        v-show='isActive()'
-        onMouseDown={handleRotate}
-      />
-      {element.isLock && <span className='iconfont icon-suo' />}
+      {isActive && (
+        <span role='contentinfo' className='iconfont icon-xiangyouxuanzhuan' onMouseDown={handleRotate}>
+          <RedoOutlined />
+        </span>
+      )}
+      {element.isLock && (
+        <span className='iconfont icon-suo'>
+          <LockOutlined />
+        </span>
+      )}
       {isActive &&
         pointList.map((item) => {
-          const style = getPointStyle(item)
           return (
             <div
               role='contentinfo'
@@ -412,7 +463,7 @@ const Shape: FC<IProps> = (props) => {
                 handleMouseDownOnPoint(item, e)
               }}
               key={item}
-              style={style}
+              style={getPointStyle(item)}
             />
           )
         })}
@@ -432,9 +483,14 @@ export default connect(
     setClickComponentStatusDispatch(payload: any) {
       dispatch(setClickComponentStatusDispatch(payload) as any)
     },
+    setShapeStyleByDispatch(payload: any) {
+      dispatch(setShapeStyleByDispatch(payload) as any)
+    },
     recordSnapshotDispatch() {
       dispatch(recordSnapshotDispatch() as any)
     },
-    setCurComponentAndComponentIndexDispatch,
+    setCurComponentAndComponentIndexDispatch(payload: any) {
+      dispatch(setCurComponentAndComponentIndexDispatch(payload) as any)
+    },
   }),
 )(memo(Shape))

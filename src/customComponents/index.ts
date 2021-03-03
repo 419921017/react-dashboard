@@ -1,14 +1,14 @@
 export interface ICommonStyle {
-  rotate: number
-  opacity: number
+  rotate?: number
+  opacity?: number
   width: number
   height: number
-  fontSize: number
-  fontWeight: string | number
-  lineHeight: string | number
-  letterSpacing: number
-  textAlign: string
-  color: string
+  fontSize?: number
+  fontWeight?: string | number
+  lineHeight?: string | number
+  letterSpacing?: number
+  textAlign?: string
+  color?: string
 }
 
 export const commonStyle: ICommonStyle = {
@@ -94,6 +94,10 @@ const leftComponentList: IComponentTab[] = [
         type: 'component',
         componentName: 'Text',
         label: '文本',
+        style: {
+          width: 200,
+          height: 32,
+        },
         img: '',
         propValue: '',
       },
@@ -103,6 +107,10 @@ const leftComponentList: IComponentTab[] = [
         label: '按钮',
         img: '',
         propValue: '',
+        style: {
+          width: 88,
+          height: 32,
+        },
       },
       {
         type: 'component',
@@ -110,6 +118,10 @@ const leftComponentList: IComponentTab[] = [
         label: '图片',
         img: '',
         propValue: '',
+        style: {
+          width: 200,
+          height: 200,
+        },
       },
     ],
   },

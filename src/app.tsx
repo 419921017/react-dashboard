@@ -8,6 +8,7 @@ import zhCN from 'antd/lib/locale/zh_CN'
 
 import routes from './routes'
 import store from './store'
+
 import './app.less'
 
 function App() {
